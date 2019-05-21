@@ -1,6 +1,7 @@
 package com.vasiliska.HystrixTest.service;
 
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.vasiliska.HystrixTest.domain.Author;
 import com.vasiliska.HystrixTest.domain.Book;
 import com.vasiliska.HystrixTest.domain.Comment;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -129,8 +131,13 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
+    @HystrixCommand(groupKey = "BookGroup", commandKey = "getAllBooksCommand", fallbackMethod = "getDefaultBooks")
     public List<Book> showAllBooks() {
         return bookRep.findAll();
+    }
+
+    public List<Book> getDefaultBooks() {
+           return Collections.emptyList();
     }
 
     @Override
